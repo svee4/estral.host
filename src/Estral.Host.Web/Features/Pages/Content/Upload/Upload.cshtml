@@ -1,0 +1,26 @@
+@page "/Content/Upload"
+@model Estral.Host.Web.Features.Pages.Content.Upload.UploadModel
+
+@if (Model.ErrorMessage is not null)
+{
+    <p>@Model.ErrorMessage</p>
+}
+
+<form method="POST" enctype="multipart/form-data" action="/content/upload">
+    @Html.AntiForgeryToken()
+    <div>
+        <label for="file">File</label>
+        <input required type="file" id="file" name="file" />
+    </div>
+    <div>
+        <label for="title">Title</label>
+        <input required type="text" id="title" name="title" />
+    </div>
+    <div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description"></textarea>
+    </div>
+    <div>
+        <button type="submit">Upload</button>
+    </div>
+</form>

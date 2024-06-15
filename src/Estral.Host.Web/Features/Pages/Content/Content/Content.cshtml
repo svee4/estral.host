@@ -1,0 +1,49 @@
+@page "/Content/{id:int}"
+@model Estral.Host.Web.Features.Pages.Content.Content.ContentModel
+@inject Estral.Host.Web.Infra.StorageHelper storageHelper
+@using Estral.Host.Web.Infra.Authorization
+
+@if (Model.ErrorMessage is not null)
+{
+    <p>@Model.ErrorMessage</p>
+}
+
+@if (Model.NotFound)
+{
+    <h2>404: Not found</h2>
+}
+else
+{
+    <header style="display: flex; justify-content: space-between;">
+        <div>
+            <h2>
+                @Model.ContentData.Title
+            </h2>
+            <a href="/user/@Model.ContentData.OwnerId">
+                @Model.ContentData.OwnerName
+            </a>
+            <p>
+                @Model.ContentData.Description
+            </p>
+        </div>
+        <div>
+            <div style="display: flex; flex-direction: column; gap: 0.5em;">
+                <button type="button">Copy link</button>
+                @if (Model.IsOwner || User.IsInRole(Roles.Admin))
+                {
+                    <button type="submit" form="form">Delete</button>
+                }
+            </div>
+        </div>
+    </header>
+
+    <div style="flex-grow: 1; display: flex; justify-content: center; position: relative;">
+        <img src="@storageHelper.GetContentUrl(Model.ContentData.Id)" style="object-fit: contain; position: absolute; width: 100%; height: 100%;" />
+    </div>
+
+
+    @* the beauty of html forms: our DELETE has to be a POST because html forms dont support the DELETE verb for whatever fucking reason *@
+    <div style="display: none">
+        <form id="form" action="/content/@Model.ContentData.Id" method="POST"></form>
+    </div>
+}

@@ -1,0 +1,7 @@
+@page "/Auth/Callback"
+@model Estral.Host.Web.Features.Pages.Auth.Callback.CallbackModel
+
+@if (Model.ErrorMessage is not null)
+{
+    <p>@Model.ErrorMessage</p>
+}

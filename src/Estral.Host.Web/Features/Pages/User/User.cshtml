@@ -1,0 +1,24 @@
+@page "/User/{id:int}"
+@model Estral.Host.Web.Features.Pages.User.UserModel
+@{
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = "";
+}
+
+@if (Model.NotFound)
+{
+    <h2>404: User not found</h2>
+}
+else
+{
+    <h2>@Model.UserData.UserName</h2>
+    <p>
+        @Model.UserData.ProfileDescription
+    </p>
+    <a href="/browse?userId=@(Model.UserData.Id)">Browse uploads</a>
+}
+
+<style>
+    main {
+        width: min(600px, 95%);
+    }
+</style>

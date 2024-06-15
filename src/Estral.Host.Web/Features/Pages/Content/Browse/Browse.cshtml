@@ -1,0 +1,31 @@
+@page "/Content/Browse"
+@model Estral.Host.Web.Features.Pages.Content.Browse.BrowseModel
+@inject Estral.Host.Web.Infra.StorageHelper storageHelper
+
+<article>
+    <h2>Results</h2>
+    <div id="content-container">
+        @foreach(var content in Model.Contents)
+        {
+            <div class="content-item">
+                <a href="/content/@content.Id">@content.Title</a>
+                <a href="/user/@content.OwnerId">@content.OwnerName</a>
+                <a href="/content/@content.Id">
+                    <img src="@storageHelper.GetContentUrl(content.Id)" />
+                </a>
+            </div>
+        }
+    </div>
+</article>
+
+<style>
+    #content-container {
+        display: flex;
+        flex-flow: wrap;
+    }
+
+    .content-item {
+        display: flex;
+        flex-direction: column;
+    }
+</style>

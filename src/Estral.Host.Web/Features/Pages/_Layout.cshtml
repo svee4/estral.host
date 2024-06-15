@@ -1,0 +1,31 @@
+@using Estral.Host.Web.Infra
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/app.css" />
+    <title>@ViewData[ViewDataKeys.Title] - Estral Host</title>
+</head>
+<body>
+    <header>
+        <div style="display: flex; justify-content: space-between; width: max(600px, 90%)">
+            <div>
+                <nav>
+                    <a href="/">Home</a>
+                    <a href="/content/browse">Browse</a>
+                    <a href="/content/upload">Upload</a>
+                </nav>
+                <menu>
+                    <a href="/auth/login">Log in</a>
+                    <a href="/auth/logout">Log out</a>
+                </menu>
+            </div>
+        </div>
+    </header>
+    <main style="flex-grow: 1;display: flex; flex-direction: column; gap: 0.5em;">
+        @RenderBody()
+    </main>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
