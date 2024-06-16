@@ -1,0 +1,70 @@
+@page "/Settings"
+@using Estral.Host.Web.Features.Pages.Settings
+@using Estral.Host.Web.Infra.Extensions
+@model SettingsModel
+@inject Estral.Host.Web.Infra.StorageHelper storageHelper
+
+<article>
+    @if (Model.ErrorMessage is not null)
+    {
+        <p>@Model.ErrorMessage</p>
+    }
+    <helper:form method="POST" enctype=multipart/form-data>
+        @Html.AntiForgeryToken()        
+        <div>
+            <label for="username">Username</label>
+            <p>
+                @Html.ValidationMessage(nameof(SettingsModel.PostDto.Username))
+            </p>
+            <input 
+                type="text"
+                required 
+                maxlength="@Estral.Host.Web.Database.User.UsernameMaxLength" 
+                class="input"
+                id="username" 
+                name="username" 
+                value="@Model.SettingsData.Username" />
+        </div>
+
+        <div>
+            <label for="profilePicture">Profile picture</label>
+            @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfilePicture))
+            <input type="file" id="profilePicture" name="profilePicture" />
+            <img id="pfp-preview" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)" />
+
+            <script type="module">
+                const input = document.getElementById("profilePicture");
+                const preview = document.getElementById("pfp-preview");
+
+                input.addEventListener("change", () => {
+                    const file = input.files[0];
+                    preview.src = URL.createObjectURL(file);
+
+                    // free memory ?
+                    preview.addEventListener("load", () => URL.revokeObjectURL(preview.src), { once: true });
+                });
+            </script>
+        </div>
+
+        <div>
+            <label for="profileDescription">Profile description</label>
+            <p>
+                @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfileDescription))
+            </p>
+            <textarea
+                maxlength="@Estral.Host.Web.Database.User.ProfileDescriptionMaxLength" 
+                class="input"
+                id="profileDescription" 
+                name="profileDescription" 
+                value="@Model.SettingsData.ProfileDescription">
+            </textarea>
+        </div>
+
+        <div>
+            <button type="submit" class="button">
+                Save changes
+            </button>
+        </div>
+
+    </helper:form>
+</article>

@@ -7,6 +7,7 @@ using Estral.Host.Web.Infra;
 using Estral.Host.Web.Infra.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +17,21 @@ if (builder.Environment.IsDevelopment())
 	builder.Configuration.AddJsonFile("appsettings.secret.json", optional: false);
 }
 
-builder.Services.AddNpgsql<AppDbContext>(builder.Configuration.GetRequiredValue("ConnectionStrings:Postgres"));
+builder.Services.AddNpgsql<AppDbContext>(
+	builder.Configuration.GetRequiredValue("ConnectionStrings:Postgres"),
+	optionsAction: options =>
+	{
+		if (builder.Environment.IsDevelopment())
+		{
+			options.EnableSensitiveDataLogging();
+		}
+	});
+
 builder.Services.AddIdentity<User, IdentityRole<int>>(ConfigureIdentity)
 	.AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddSingleton<StorageHelper>();
-
+builder.Services.AddScoped<AuditLogService>();
 
 var s3Credentials = new BasicAWSCredentials(
 	builder.Configuration.GetRequiredValue("S3:ClientId"),
@@ -58,9 +68,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 		ConfigurationException.Throw("Value for 'Auth:CookieExpirationMinutes' must be parsable into an int");
 	}
 
-	options.Cookie.MaxAge = TimeSpan.FromMinutes(expMinutes);
+	options.SlidingExpiration = true;
+	options.ExpireTimeSpan = TimeSpan.FromMinutes(expMinutes);
 
-
+	options.LoginPath = "/Auth/Login";
+	options.LogoutPath = "/Auth/Logout";
+	options.AccessDeniedPath = "/Auth/AccessDenied";
 });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -69,7 +82,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 var app = builder.Build();
 
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+
+}
+else
 {
 	app.UseForwardedHeaders();
 	app.UseExceptionHandler("/Error");

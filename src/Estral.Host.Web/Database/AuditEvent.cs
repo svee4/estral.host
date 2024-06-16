@@ -1,35 +1,33 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Estral.Host.Web.Database;
 
 public sealed class AuditEvent
 {
 	public int Id { get; private set; }
-	public string? Category { get; private set; }
-	public string Message { get; private set; }
+	public string Category { get; private set; }
+	public string? Message { get; private set; }
 	public string? RequestIp { get; private set; }
 	public string? Username { get; private set; }
 	public int? UserId { get; private set; }
 	public string? TraceId { get; private set; }
 	// stored as json
-	public IReadOnlyDictionary<string, string>? Data { get; private set; }
+	public IReadOnlyDictionary<string, string?>? Data { get; private set; }
 	public DateTimeOffset Created { get; private set; }
 
 	private AuditEvent() { }
 
 	public static AuditEvent Create(
 			string category,
-			string message,
+			string? message,
 			string? requestIp,
 			string? username,
 			int? userId,
 			string? traceId,
-			IReadOnlyDictionary<string, string>? data) =>
+			IReadOnlyDictionary<string, string?>? data) =>
 		new AuditEvent
 		{
 			Category = category,
@@ -51,7 +49,7 @@ public sealed class AuditEvent
 			builder.Property(m => m.Data)
 				.HasConversion(
 					to => JsonSerializer.Serialize(to, default(JsonSerializerOptions)),
-					from => JsonSerializer.Deserialize<Dictionary<string, string>>(from, default(JsonSerializerOptions)));
+					from => JsonSerializer.Deserialize<Dictionary<string, string?>?>(from, default(JsonSerializerOptions)));
 		}
 	}
 

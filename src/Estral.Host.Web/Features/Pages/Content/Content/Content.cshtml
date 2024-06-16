@@ -3,6 +3,10 @@
 @inject Estral.Host.Web.Infra.StorageHelper storageHelper
 @using Estral.Host.Web.Infra.Authorization
 
+@section Head {
+    <link rel="stylesheet" href="/content.css" />   
+}
+
 @if (Model.ErrorMessage is not null)
 {
     <p>@Model.ErrorMessage</p>
@@ -14,36 +18,40 @@
 }
 else
 {
-    <header style="display: flex; justify-content: space-between;">
+    <header id="content-header">
         <div>
-            <h2>
+            <h2 style="word-break: break-all">
                 @Model.ContentData.Title
             </h2>
-            <a href="/user/@Model.ContentData.OwnerId">
+            <a href="/user/@Model.ContentData.OwnerId" class="link" style="word-break: break-all">
                 @Model.ContentData.OwnerName
             </a>
-            <p>
+            <p style="word-break: break-all">
                 @Model.ContentData.Description
             </p>
         </div>
-        <div>
-            <div style="display: flex; flex-direction: column; gap: 0.5em;">
-                <button type="button">Copy link</button>
-                @if (Model.IsOwner || User.IsInRole(Roles.Admin))
-                {
-                    <button type="submit" form="form">Delete</button>
-                }
-            </div>
+        <div id="content-buttons">
+            <button type="button" class="button">Copy link</button>
+            @if (Model.IsOwner || User.IsInRole(Roles.Admin))
+            {
+                <button type="submit" form="form" class="button">Delete</button>
+            }
         </div>
     </header>
 
-    <div style="flex-grow: 1; display: flex; justify-content: center; position: relative;">
-        <img src="@storageHelper.GetContentUrl(Model.ContentData.Id)" style="object-fit: contain; position: absolute; width: 100%; height: 100%;" />
+    <div id="content-image-container">
+        <img src="@storageHelper.GetContentUrl(Model.ContentData.Id)" />
     </div>
 
 
     @* the beauty of html forms: our DELETE has to be a POST because html forms dont support the DELETE verb for whatever fucking reason *@
     <div style="display: none">
-        <form id="form" action="/content/@Model.ContentData.Id" method="POST"></form>
+        <helper:form id="form" method="POST">
+            @Html.AntiForgeryToken()
+        </helper:form>
     </div>
 }
+
+<style>
+
+</style>

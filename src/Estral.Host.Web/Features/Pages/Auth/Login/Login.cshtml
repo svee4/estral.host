@@ -1,3 +1,20 @@
 @page "/Auth/Login"
 @model Estral.Host.Web.Features.Pages.Auth.Login.LoginModel
-<h1>You will be redirected NOW!</h1>
+
+<article id="page">
+    <a href="@Model.Url" class="button">
+        Log in with discord
+    </a>
+</article>
+
+<style>
+    #page {
+        display: flex;
+        justify-content: center;
+    }
+
+    #page a {
+        --bg: var(--orange-lightest);
+        --bg-hover: var(--platinum);
+    }
+</style>

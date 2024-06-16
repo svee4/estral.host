@@ -1,5 +1,6 @@
 @page "/Content/Upload"
-@model Estral.Host.Web.Features.Pages.Content.Upload.UploadModel
+@using Estral.Host.Web.Features.Pages.Content.Upload
+@model UploadModel
 
 @if (Model.ErrorMessage is not null)
 {
@@ -10,15 +11,18 @@
     @Html.AntiForgeryToken()
     <div>
         <label for="file">File</label>
+        @Html.ValidationMessage(nameof(UploadModel.PostDto.File))
         <input required type="file" id="file" name="file" />
     </div>
     <div>
         <label for="title">Title</label>
-        <input required type="text" id="title" name="title" />
+        @Html.ValidationMessage(nameof(UploadModel.PostDto.Title))
+        <input required type="text" id="title" name="title" maxlength="@UploadModel.TitleMaxLength" />
     </div>
     <div>
         <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
+        @Html.ValidationMessage(nameof(UploadModel.PostDto.Description))
+        <textarea id="description" name="description" maxlength="@UploadModel.DescriptionMaxLength"></textarea>
     </div>
     <div>
         <button type="submit">Upload</button>

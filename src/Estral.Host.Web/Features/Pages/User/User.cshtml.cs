@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Estral.Host.Web.Infra.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,8 @@ public class UserModel : PageModel
 
 	public UserDataDto? UserData { get; private set; }
 
+	public bool IsCurrentUser { get; private set; }
+
 	public async Task OnGet(
 		int id,
 		[FromServices] Database.AppDbContext dbContext)
@@ -23,6 +26,8 @@ public class UserModel : PageModel
 			NotFound = true;
 			return;
 		}
+
+		IsCurrentUser = User.GetUserId() == user.Id;
 
 		UserData = new UserDataDto()
 		{

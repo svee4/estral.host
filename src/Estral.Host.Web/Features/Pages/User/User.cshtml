@@ -1,24 +1,25 @@
 @page "/User/{id:int}"
+@using Estral.Host.Web.Infra.Extensions
 @model Estral.Host.Web.Features.Pages.User.UserModel
 @{
-    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = "";
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = Model.NotFound ? "User not found" : Model.UserData.UserName;
 }
 
-@if (Model.NotFound)
-{
-    <h2>404: User not found</h2>
-}
-else
-{
-    <h2>@Model.UserData.UserName</h2>
-    <p>
-        @Model.UserData.ProfileDescription
-    </p>
-    <a href="/browse?userId=@(Model.UserData.Id)">Browse uploads</a>
+@section Head {
+    <link rel="stylesheet" href="/user.css" />
 }
 
-<style>
-    main {
-        width: min(600px, 95%);
+<article style="width: var(--default-page-width)">
+    @if (Model.NotFound)
+    {
+        <h2>404: User not found</h2>
     }
-</style>
+    else
+    {
+        <h2>@Model.UserData.UserName</h2>
+        <p>
+            @Model.UserData.ProfileDescription
+        </p>
+        <a href="/browse?userId=@(Model.UserData.Id)">Browse uploads</a>
+    }
+</article>

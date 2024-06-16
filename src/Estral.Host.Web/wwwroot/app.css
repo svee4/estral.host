@@ -1,7 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+:root {
+	--rose: #F40076;
+	--pink: #FF85C0;
+
+	--black: #1c1c1c;
+	--black-lighter: #1e1e1e;
+	--black-lightest: #222;
+	--black-darker: #0d0d0d;
+
+	--orange: #EF8354;
+	--orange-lighter: #F1926A;
+	--orange-lightest: #F3A07C;
+
+	--platinum: #E9E3E6;
+	--platinum-lighter: #F6F4F5;
+	--platinum-darker: #E3DDE0;
+	--platinum-darkest: #DAD2D6;
+
+	--platinum-pink: color-mix(in srgb, var(--platinum) 50%, var(--pink));
+
+	--magenta: #C45BAA;
+
+	--default-page-width: min(600px, 95%);
+}
+
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	font-family: Roboto;
 }
 
 html {
@@ -12,4 +40,147 @@ body {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+}
+
+main {
+	padding: 8px;
+	background-color: var(--black-darker);
+	color: var(--platinum);
+	flex-grow: 1;
+}
+
+button {
+	cursor: pointer;
+}
+
+a {
+	text-decoration: none;
+	color: var(--platinum);
+}
+
+
+.link {
+	color: var(--platinum-pink);
+	transition: color 0.1s linear;
+
+	&:is(:hover, :focus-visible) {
+		color: var(--pink);
+	}
+}
+
+.button {
+	--bg: var(--platinum);
+	--bg-hover: var(--orange);
+
+	border: none;
+	border-radius: 4px;
+	padding: 6px;
+	color: black;
+	background-color: var(--bg);
+	transition: background-color 0.1s linear;
+
+	&:is(:hover, :focus-visible) {
+		background-color: var(--bg-hover);
+	}
+}
+
+.input {
+	padding: 4px;
+	color: black;
+	background-color: var(--platinum);
+	border: 1px solid var(--black-lightest);
+}
+
+/* 
+	layout
+*/
+
+#header-div {
+	margin-left: auto;
+	margin-right: auto;
+	width: min(400px, 95%);
+	display: flex;
+	align-items: center;
+	font-size: 1.1em;
+
+	& a {
+		text-decoration: none;
+		color: var(--orange);
+		transition: color 0.1s linear;
+		&:is(:hover, :focus-visible) {
+			color: var(--platinum);
+		}
+	}
+}
+
+#header-nav {
+	display: flex;
+	gap: 1em;
+	align-items: center;
+}
+
+#header-menu-container {
+	position: relative;
+	padding: 4px; /* we apply the header's padding to this element so it works nicely with the menu's top: 100% */
+}
+
+#header-menu-button {
+	background-color: var(--black);
+	width: 32px;
+	height: 32px;
+
+	border: none;
+	border-radius: 6px;
+
+	/* doesnt work :( */
+	transition: filter 0.1s linear;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	/* svg filter magic: https://stackoverflow.com/questions/22252472/ */
+
+	& img {
+		width:  26px;
+		height: 26px;
+		filter: /* --platinum */
+			invert(92%) sepia(6%) 
+			saturate(117%) hue-rotate(277deg) 
+			brightness(101%) contrast(89%)
+	}
+
+	&:is(:hover, :focus-visible) {
+		& img {
+			filter: 
+				/* --orange */
+				invert(62%) sepia(9%)
+				saturate(3546%) hue-rotate(329deg) 
+				brightness(101%) contrast(88%);
+		}
+	}
+}
+
+#header-menu {
+	position: absolute;
+/*	top: calc(100% + 2px);*/
+	top: 100%;
+	display: flex;
+	flex-direction: column;
+	white-space: nowrap;
+	background-color: var(--black);
+	padding: 1px;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	border: 1px solid var(--black-lightest);
+	border-top: none;
+
+	& a {
+		padding: 6px;
+		color: var(--platinum);
+		&:is(:hover, :focus-visible) {
+			color: var(--orange);
+			background-color: var(--black-lightest);
+		}
+	}
 }

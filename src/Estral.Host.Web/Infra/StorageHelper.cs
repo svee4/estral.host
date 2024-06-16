@@ -13,4 +13,10 @@ public sealed class StorageHelper(IConfiguration configuration)
 		return path;
 	}
 
+	public string GetPfpUrl(int userId)
+	{
+		var path = $"https://{_cdnUrl}/pfp/{userId}";
+		return path;
+	}
+
 }

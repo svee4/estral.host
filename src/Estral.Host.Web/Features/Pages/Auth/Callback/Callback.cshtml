@@ -5,3 +5,42 @@
 {
     <p>@Model.ErrorMessage</p>
 }
+
+<article id="page">
+    <p style="margin-left: auto; margin-right: auto;">
+        Logging in...
+    </p>
+
+    @* have to detour via the client so we get the state cookie *@
+    <helper:form method="POST" id="form" style="display: flex; justify-content: center;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="code" value="@Model.OAuthParams.Code" />
+        <input type="hidden" name="state" value="@Model.OAuthParams.State" />
+    </helper:form>
+</article>
+
+<style>
+    #page {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    #form button {
+        font-size: 1.05em;
+        background-color: var(--orange-lightest);
+
+        &:is(:hover, :focus-visible) {
+            background-color: var(--platinum-darkest);
+        }
+    }
+</style>
+
+@if (Model.ErrorMessage is null && Model.PostFast)
+{
+    <script type="module">
+        window.history.replaceState(null, '', window.location.pathname); // clear query string  
+        setTimeout(() => document.getElementById("form").submit(), 1);
+        // document.getElementById("form").submit();
+    </script>
+}

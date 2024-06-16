@@ -2,8 +2,11 @@
 @model Estral.Host.Web.Features.Pages.Content.Browse.BrowseModel
 @inject Estral.Host.Web.Infra.StorageHelper storageHelper
 
-<article>
-    <h2>Results</h2>
+@section Head {
+    <link rel="stylesheet" href="/browse.css" />
+}
+
+<article id="content-article">
     <div id="content-container">
         @foreach(var content in Model.Contents)
         {
@@ -17,15 +20,3 @@
         }
     </div>
 </article>
-
-<style>
-    #content-container {
-        display: flex;
-        flex-flow: wrap;
-    }
-
-    .content-item {
-        display: flex;
-        flex-direction: column;
-    }
-</style>

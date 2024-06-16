@@ -17,6 +17,8 @@ public sealed class Content
 	public int OwnerId { get; private set; }
 	public User Owner { get; set; }
 
+	private Content() { }
+
 	public static Content Create(string title, string? description, User owner)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(title);

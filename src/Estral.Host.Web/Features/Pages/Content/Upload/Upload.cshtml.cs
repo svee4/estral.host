@@ -7,68 +7,87 @@ using Microsoft.EntityFrameworkCore;
 using Amazon.S3.Model;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using Estral.Host.Web.Infra;
+using System.Diagnostics;
+using Estral.Host.Web.Infra.Validation;
 
 namespace Estral.Host.Web.Features.Pages.Content.Upload;
 
 
 [Authorize]
-[AutoValidateAntiforgeryToken]
+[ValidateAntiForgeryToken]
 public class UploadModel : PageModel
 {
 
+	public const int TitleMaxLength = Database.Content.TitleMaxLength;
+	public const int DescriptionMaxLength = Database.Content.DescriptionMaxLength;
+	public const int FileMaxSizeBytes = 10 * 1000 * 1000;
+
 	public string? ErrorMessage { get; private set; }
-	public IList<string>? Errors { get; private set; }
 
 	public void OnGet()
 	{
 	}
 
 	public async Task OnPost(
-		[FromForm] FormModel model,
+		[FromForm] PostDto postDto,
 		[FromServices] Database.AppDbContext dbContext,
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] Amazon.S3.IAmazonS3 s3Client,
+		[FromServices] AuditLogService auditLogService,
 		[FromServices] IConfiguration config,
 		[FromServices] ILogger<UploadModel> logger,
 		CancellationToken token)
 	{
+		if (!ModelState.IsValid)
+		{
+			Debugger.Break();
+			return;
+		}
 
-		var title = StringExtensions.NormalizeToNull(model.Title.Trim());
-		var description = StringExtensions.NormalizeToNull(model.Description?.Trim());
+		var title = StringExtensions.NormalizeToNull(postDto.Title.Trim());
+		var description = StringExtensions.NormalizeToNull(postDto.Description?.Trim());
 
 		if (title is null)
 		{
-			ErrorMessage = "Title cannot be empty or only whitespace";
+			ModelState.AddModelError(nameof(PostDto.Title), "Title cannot be empty or only whitespace");
 			return;
 		}
 
 		var user = await userManager.GetUserAsync(User) ?? throw new Exception("Null authorized user??");
 
-		if (await dbContext.Contents.AnyAsync(m => m.Owner.Id == user.Id && m.Title == model.Title, token))
+		if (await dbContext.Contents.AnyAsync(m => m.Owner.Id == user.Id && m.Title == postDto.Title, token))
 		{
-			ErrorMessage = "Duplicate title";
+			ModelState.AddModelError(nameof(PostDto.Title), "Duplicate title");
 			return;
 		}
+
+		await auditLogService.Add(new()
+		{
+			Category = AuditLogService.Categories.ContentUpload,
+			UserId = user.Id,
+			Data = new()
+			{
+				{ "title", title },
+				{ "description", description }
+			}
+		}, CancellationToken.None);
 
 		var content = Database.Content.Create(title, description, user);
 		await dbContext.Contents.AddAsync(content, token);
 		await dbContext.SaveChangesAsync(token);
 
 		var ms = new MemoryStream();
-		await model.File.CopyToAsync(ms, token);
+		await postDto.File.CopyToAsync(ms, token);
 
-		var request = new PutObjectRequest
-		{
-			BucketName = config.GetRequiredValue("S3:BucketName"),
-			Key = content.Id.ToString(CultureInfo.InvariantCulture),
-			ContentType = model.File.ContentType,
-			InputStream = ms,
-			DisablePayloadSigning = true, // needed for r2
-		};
-
-		model.File = null!;
-
-		var result = await s3Client.PutObjectAsync(request, token);
+		var result = await AmazonS3Extensions.UploadObject(
+			s3Client: s3Client,
+			bucketName: config.GetRequiredValue("S3:BucketName"),
+			key: content.Id.ToString(CultureInfo.InvariantCulture),
+			contentType: postDto.File.ContentType,
+			inputStream: ms,
+			CancellationToken.None
+		);
 
 		if ((int)result.HttpStatusCode >= 400)
 		{
@@ -84,15 +103,17 @@ public class UploadModel : PageModel
 		Response.Redirect($"/content/{content.Id}");
 	}
 
-	public sealed class FormModel
+	public sealed class PostDto
 	{
 
 		[Required]
+		[FileValidation(MaxInclusiveSizeInBytes = FileMaxSizeBytes, AllowedFileTypesPreset = FileValidationAttribute.FileTypes.Preset.ImageAndGif)]
 		public IFormFile File { get; set; } = null!;
 
-		[Required]
+		[Required, MaxLength(TitleMaxLength)]
 		public string Title { get; set; } = null!;
 
+		[MaxLength(DescriptionMaxLength)]
 		public string? Description { get; set; }
 	}
 }

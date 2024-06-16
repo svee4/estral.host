@@ -1,29 +1,69 @@
 @using Estral.Host.Web.Infra
+@using Estral.Host.Web.Infra.Extensions
+@inject StorageHelper storageHelper
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/app.css" />
-    <title>@ViewData[ViewDataKeys.Title] - Estral Host</title>
+    <title>@ViewData[ViewDataKeys.Title]</title>
+    @RenderSection("Head", required: false)
 </head>
 <body>
-    <header>
-        <div style="display: flex; justify-content: space-between; width: max(600px, 90%)">
-            <div>
-                <nav>
-                    <a href="/">Home</a>
-                    <a href="/content/browse">Browse</a>
+    <header style="background-color: var(--black);">
+        <div id="header-div">
+            <nav id="header-nav">
+                <div id="header-menu-container">
+                    <button type="button" id="header-menu-button" aria-label="Menu">
+                        <img src="/borgor.svg" alt="Menu" />
+                    </button>
+                    <menu id="header-menu">
+                        @if (User.IsAuthenticated())
+                        {
+                            <a href="/settings">Settings</a>
+                            <a href="/auth/logout">Log out</a>
+                        }
+                        else
+                        {
+                            <a href="/auth/login">Log in</a>
+                        }
+                    </menu>
+                </div>
+                <a href="/">Home</a>
+                <a href="/content/browse">Browse</a>
+                @if (User.IsAuthenticated())
+                {
                     <a href="/content/upload">Upload</a>
-                </nav>
-                <menu>
+                }
+                @if (User.IsAuthenticated())
+                {
+                    <a href="/user/@User.GetUserId()">
+                        <img style="width: 28px; height: 28px;" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)" />   
+                    </a>
+                }
+                else
+                {
                     <a href="/auth/login">Log in</a>
-                    <a href="/auth/logout">Log out</a>
-                </menu>
-            </div>
+                }
+            </nav>
         </div>
+        <script>
+            const button = document.getElementById("header-menu-button");
+            
+            button.addEventListener("click", () => {
+                    const menu = document.getElementById("header-menu");
+                    menu.style.display = menu.style.display === "none" ? "" : "none";
+            });
+
+            button.click();
+        </script>
+        <style>
+            
+        </style>
     </header>
-    <main style="flex-grow: 1;display: flex; flex-direction: column; gap: 0.5em;">
+    <main>
         @RenderBody()
     </main>
     @await RenderSectionAsync("Scripts", required: false)

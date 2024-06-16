@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Estral.Host.Web.Features.Pages.Content.Content;
 
+[ValidateAntiForgeryToken]
 public class ContentModel : PageModel
 {
 
@@ -53,11 +54,12 @@ public class ContentModel : PageModel
 		};
 	}
 
+	// the post is a delete
 	public async Task OnPost(
 		[FromRoute] int id,
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] Database.AppDbContext dbContext,
-		[FromServices] AmazonS3Client s3Client,
+		[FromServices] IAmazonS3 s3Client,
 		[FromServices] AuditLogService auditLogService,
 		[FromServices] IConfiguration config,
 		[FromServices] ILogger<ContentModel> logger,
@@ -67,16 +69,18 @@ public class ContentModel : PageModel
 		if (user is null)
 		{
 			ErrorMessage = "Not logged in";
-			await auditLogService.Add(
-				category: AuditLogService.Categories.Authorization,
-				message: "Unauthenticated attempt to delete content",
-				requestIp: HttpContext.Connection.RemoteIpAddress?.ToString(),
-				data: new Dictionary<string, string>()
+
+			await auditLogService.Add(new()
+			{
+				Category = AuditLogService.Categories.Authorization,
+				Message = "Unauthenticated attempt to delete content",
+				RequestIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
+				Data = new()
 				{
 					["contentId"] = id.ToString(CultureInfo.InvariantCulture),
 				},
-				token: CancellationToken.None
-			);
+			}, CancellationToken.None);
+
 			return;
 		}
 
@@ -89,35 +93,35 @@ public class ContentModel : PageModel
 		if (user.Id != content.OwnerId && !User.IsInRole(Roles.Admin))
 		{
 			ErrorMessage = "Not authorized";
-			await auditLogService.Add(
-				category: AuditLogService.Categories.Authorization,
-				message: "Unauthorized attempt to delete content",
-				requestIp: HttpContext.Connection.RemoteIpAddress?.ToString(),
-				username: user.UserName,
-				userId: user.Id,
-				data: new Dictionary<string, string>()
+
+			await auditLogService.Add(new()
+			{
+				Category = AuditLogService.Categories.Authorization,
+				Message = "Unauthorized attempt to delete content",
+				RequestIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
+				Username = user.UserName,
+				UserId = user.Id,
+				Data = new()
 				{
 					["contentId"] = id.ToString(CultureInfo.InvariantCulture)
 				},
-				token: CancellationToken.None
-			);
+			}, CancellationToken.None);
+
 			return;
 		}
 
-		// yes i log deletions
-		// this is because someone can upload something bad and then delete it before admin sees :(
-		await auditLogService.Add(
-			category: AuditLogService.Categories.ContentDelete,
-			message: "Content deleted",
-			username: user.UserName,
-			userId: user.Id,
-			data: new()
+		await auditLogService.Add(new()
+		{
+			Category = AuditLogService.Categories.ContentDelete,
+			Message = "Content deleted",
+			Username = user.UserName,
+			UserId = user.Id,
+			Data = new()
 			{
 				["contentId"] = content.Id.ToString(CultureInfo.InvariantCulture),
 				["contentTitle"] = content.Title
-			},
-			token: CancellationToken.None
-		);
+			}
+		}, CancellationToken.None);
 
 		dbContext.Contents.Remove(content);
 		await dbContext.SaveChangesAsync(token);
@@ -128,7 +132,12 @@ public class ContentModel : PageModel
 			Key = id.ToString(CultureInfo.InvariantCulture)
 		};
 
-		var result = await s3Client.DeleteObjectAsync(request, token);
+		var result = await AmazonS3Extensions.DeleteObject(
+			s3Client,
+			config.GetRequiredValue("S3:BucketName"),
+			id.ToString(CultureInfo.InvariantCulture),
+			CancellationToken.None);
+
 		if ((int)result.HttpStatusCode >= 400)
 		{
 			ErrorMessage = "Failed to remove content from cdn";
