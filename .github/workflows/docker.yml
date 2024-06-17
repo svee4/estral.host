@@ -41,6 +41,8 @@ jobs:
         with:
           context: ./src/Estral.Host.Web
           file: ./src/Estral.Host.Web/Dockerfile
+          build-contexts: "projectroot=../../"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          
