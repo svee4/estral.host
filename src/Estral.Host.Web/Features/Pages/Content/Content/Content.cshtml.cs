@@ -52,6 +52,14 @@ public class ContentModel : PageModel
 			OwnerId = content.Owner.Id,
 			OwnerName = content.Owner.UserName
 		};
+
+		var og = new OpenGraphModel()
+		{
+			Id = content.Id,
+			Title = content.Title
+		};
+
+		ViewData[ViewDataKeys.OpenGraphModel] = og;
 	}
 
 	// the post is a delete

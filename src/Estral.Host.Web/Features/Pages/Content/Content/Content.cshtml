@@ -2,6 +2,9 @@
 @model Estral.Host.Web.Features.Pages.Content.Content.ContentModel
 @inject Estral.Host.Web.Infra.StorageHelper storageHelper
 @using Estral.Host.Web.Infra.Authorization
+@{
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = Model.NotFound ? "Not found" : $"{Model.ContentData.Title} | {Model.ContentData.OwnerName}";
+}
 
 @section Head {
     <link rel="stylesheet" href="/content.css" />   
@@ -40,7 +43,7 @@ else
     </header>
 
     <div id="content-image-container">
-        <img src="@storageHelper.GetContentUrl(Model.ContentData.Id)" />
+        <img src="@storageHelper.GetCdnUrl(Model.ContentData.Id)" />
     </div>
 
 

@@ -7,13 +7,13 @@ public sealed class StorageHelper(IConfiguration configuration)
 
 	private readonly string _cdnUrl = configuration.GetRequiredValue("S3:CdnUrl");
 
-	public string GetContentUrl(int contentId)
+	public string GetCdnUrl(int contentId)
 	{
 		var path = $"https://{_cdnUrl}/{contentId}";
 		return path;
 	}
 
-	public string GetPfpUrl(int userId)
+	public string GetCdnPfpUrl(int userId)
 	{
 		var path = $"https://{_cdnUrl}/pfp/{userId}";
 		return path;

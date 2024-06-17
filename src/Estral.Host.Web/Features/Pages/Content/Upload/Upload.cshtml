@@ -1,6 +1,9 @@
 @page "/Content/Upload"
 @using Estral.Host.Web.Features.Pages.Content.Upload
 @model UploadModel
+@{
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = "Upload";
+}
 
 @if (Model.ErrorMessage is not null)
 {

@@ -1,14 +1,28 @@
 @using Estral.Host.Web.Infra
 @using Estral.Host.Web.Infra.Extensions
 @inject StorageHelper storageHelper
+@inject IConfiguration config
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="stylesheet" href="/app.css" />
     <title>@ViewData[ViewDataKeys.Title]</title>
+
+    @if (ViewData["OpenGraph"] is OpenGraphModel og)
+    {
+        <meta property="og:title" content="@og.Title" />
+        <meta property="og:image" content="@storageHelper.GetCdnUrl(og.Id)" />
+        <meta property="og:image:secure_url" content="@storageHelper.GetCdnUrl(og.Id)" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://@config.GetRequiredValue("AppDomain")/content/@og.Id" />
+        <meta name="twitter:card" content="summary_large_image">
+    }
+
     @RenderSection("Head", required: false)
 </head>
 <body>
@@ -30,7 +44,7 @@
                             <a href="/auth/login">Log in</a>
                         }
                         <a href="/boring/privacy">Privacy policy</a>
-                        <a hreef="/boring/terms">Terms of service</a>
+                        <a href="/boring/terms">Terms of service</a>
                     </menu>
                 </div>
                 <a href="/">Home</a>
@@ -42,7 +56,7 @@
                 @if (User.IsAuthenticated())
                 {
                     <a href="/user/@User.GetUserId()">
-                        <img style="width: 28px; height: 28px;" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)" />   
+                        <img style="width: 28px; height: 28px;" src="@storageHelper.GetCdnPfpUrl(User.GetUserId()!.Value)" />
                     </a>
                 }
                 else
@@ -53,16 +67,16 @@
         </div>
         <script>
             const button = document.getElementById("header-menu-button");
-            
+
             button.addEventListener("click", () => {
-                    const menu = document.getElementById("header-menu");
-                    menu.style.display = menu.style.display === "none" ? "" : "none";
+                const menu = document.getElementById("header-menu");
+                menu.style.display = menu.style.display === "none" ? "" : "none";
             });
 
             button.click();
         </script>
         <style>
-            
+
         </style>
     </header>
 

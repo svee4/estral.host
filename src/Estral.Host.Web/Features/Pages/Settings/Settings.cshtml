@@ -3,6 +3,9 @@
 @using Estral.Host.Web.Infra.Extensions
 @model SettingsModel
 @inject Estral.Host.Web.Infra.StorageHelper storageHelper
+@{
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = "Settings";
+}
 
 <article>
     @if (Model.ErrorMessage is not null)
@@ -28,7 +31,7 @@
             <label for="profilePicture">Profile picture</label>
             @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfilePicture))
             <input type="file" id="profilePicture" name="profilePicture" />
-            <img id="pfp-preview" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)"
+            <img id="pfp-preview" src="@storageHelper.GetCdnPfpUrl(User.GetUserId()!.Value)"
                 style="width: 52px; height: 52px"/>
 
             <script type="module">

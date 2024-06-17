@@ -1,5 +1,8 @@
 @page "/Auth/Callback"
 @model Estral.Host.Web.Features.Pages.Auth.Callback.CallbackModel
+@{
+    ViewData[Estral.Host.Web.Infra.ViewDataKeys.Title] = "Logging in...";
+}
 
 @if (Model.ErrorMessage is not null)
 {
