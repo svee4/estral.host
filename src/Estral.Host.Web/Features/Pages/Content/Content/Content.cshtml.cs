@@ -63,7 +63,7 @@ public class ContentModel : PageModel
 	}
 
 	// the post is a delete
-	public async Task OnPost(
+	public async Task<IActionResult> OnPost(
 		[FromRoute] int id,
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] Database.AppDbContext dbContext,
@@ -89,13 +89,13 @@ public class ContentModel : PageModel
 				},
 			}, CancellationToken.None);
 
-			return;
+			return Unauthorized();
 		}
 
 		var content = await dbContext.Contents.Where(m => m.Id == id).FirstOrDefaultAsync(token);
 		if (content is null)
 		{
-			return;
+			return BadRequest();
 		}
 
 		if (user.Id != content.OwnerId && !User.IsInRole(Roles.Admin))
@@ -115,7 +115,7 @@ public class ContentModel : PageModel
 				},
 			}, CancellationToken.None);
 
-			return;
+			return Unauthorized();
 		}
 
 		await auditLogService.Add(new()
@@ -153,10 +153,11 @@ public class ContentModel : PageModel
 				id, 
 				result.HttpStatusCode,
 				result.ResponseMetadata);
-			return;
+			return Page();
 		}
 
 		NotFound = true;
+		return Page();
 	}
 
 	public sealed class ContentDto

@@ -14,6 +14,8 @@ public sealed class User : IdentityUser<int>
 
 	public string? ProfileDescription { get; set; }
 
+	public DateTimeOffset Created {  get; private set; }
+
 	// make non-nullable because its required
 	public new string UserName
 	{
@@ -32,6 +34,7 @@ public sealed class User : IdentityUser<int>
 		{
 			DiscordId = discordId,
 			UserName = username,
+			Created = DateTimeOffset.UtcNow
 		};
 	}
 

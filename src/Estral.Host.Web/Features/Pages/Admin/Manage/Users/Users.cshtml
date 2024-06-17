@@ -1,0 +1,73 @@
+@page "/Admin/Manage/Users"
+@using Estral.Host.Web.Infra.Extensions
+@using System.Globalization
+@model Estral.Host.Web.Features.Pages.Admin.Manage.Users.UsersModel
+
+<article id="page">
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <p>@Model.ErrorMessage</p>
+    }
+
+    <table id="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Username</th>
+                <th scope="col">Created UTC</th>
+                <th scope="col">Roles</th>
+                <th scope="col">Locked out</th>
+                <th scope="col">Toggle lockout</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var userDto in Model.UsersDatas)
+            {
+                <tr>
+                    <td>@userDto.Id</td>
+                    <td>@userDto.Username</td>
+                    <td>@userDto.Created.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)</td>
+                    <td>@userDto.Roles.StringJoin(", ")</td>
+                    <td>@(userDto.LockedOut ? "yes" : "no")</td>
+                    <td>
+                        <button type="submit" form="toggleLockoutForm" name="userId" value="@userDto.Id" class="button">
+                            Toggle lockout
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <helper:form id="toggleLockoutForm" method="POST" asp-page-handler="toggleLockout" style="display: none">
+        @Html.AntiForgeryToken()
+    </helper:form>
+</article>
+<style>
+    #page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1em;
+    }
+
+    #table {
+        padding: 6px;
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    #table tbody tr {
+        background-color: var(--black-lighter);
+
+        &:nth-child(2n) {
+            background-color: var(--black-lightest);
+        }
+    }
+
+    #table :is(th, td) {
+        border: 1px solid rgb(255, 255, 255, 0.2);
+        padding: 4px;
+    }
+</style>

@@ -119,7 +119,7 @@ static void ConfigureIdentity(IdentityOptions options)
 	// WHY ALLOWLIST INSTEAD OF DEFAULT ALLOW ? 
 	// because unicode is hard
 
-	const string BasicAscii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	const string BasicAscii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
 	const string SomeSpecialStuff = "åäöÅÄÖ";
 
 	// add more stuff here as needed
@@ -172,6 +172,8 @@ static async Task SetupDatabaseAndIdentity(IServiceProvider serviceProvider)
 		}
 	}
 
+	var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+
 	// set default admin users
 	var adminUserDiscordIds = config["PreseedAdminUserDiscordIds"];
 	if (StringExtensions.NormalizeToNull(adminUserDiscordIds) is { } idss)
@@ -179,7 +181,6 @@ static async Task SetupDatabaseAndIdentity(IServiceProvider serviceProvider)
 		const string Role = Estral.Host.Web.Infra.Authorization.Roles.Admin;
 
 		var ids = idss.Split(",").Select(ulong.Parse).ToArray();
-		var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
 		foreach (var id in ids)
 		{

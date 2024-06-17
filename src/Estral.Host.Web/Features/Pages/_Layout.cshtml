@@ -37,6 +37,10 @@
                         @if (User.IsAuthenticated())
                         {
                             <a href="/settings">Settings</a>
+                            @if (User.IsInRole(Estral.Host.Web.Infra.Authorization.Roles.Admin))
+                            {
+                                <a href="/admin/manage/users">Manage users (admin)</a>
+                            }
                             <a href="/auth/logout">Log out</a>
                         }
                         else
