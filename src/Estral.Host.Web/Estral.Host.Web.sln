@@ -5,6 +5,11 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estral.Host.Web", "Estral.Host.Web.csproj", "{F7E745BA-B66A-4B7B-A61F-56156C612168}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{35AF4342-E7A3-4DA8-94E4-37A39CA3FB97}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\todo.md = ..\..\todo.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
