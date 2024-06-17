@@ -8,6 +8,7 @@ using Estral.Host.Web.Infra.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static System.Formats.Asn1.AsnWriter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,8 @@ builder.Services.AddNpgsql<AppDbContext>(
 	});
 
 builder.Services.AddIdentity<User, IdentityRole<int>>(ConfigureIdentity)
-	.AddEntityFrameworkStores<AppDbContext>();
+	.AddEntityFrameworkStores<AppDbContext>()
+	.AddRoles<IdentityRole<int>>();
 
 builder.Services.AddSingleton<StorageHelper>();
 builder.Services.AddScoped<AuditLogService>();
@@ -104,8 +106,7 @@ app.MapRazorPages();
 
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
 {
-	var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-	await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync(dbContext.Database);
+	await SetupDatabaseAndIdentity(scope.ServiceProvider);
 }
 
 
@@ -146,4 +147,52 @@ static void ConfigureIdentity(IdentityOptions options)
 			});
 
 	options.User.AllowedUserNameCharacters = s;
+}
+
+static async Task SetupDatabaseAndIdentity(IServiceProvider serviceProvider)
+{
+	var dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+	var config = serviceProvider.GetRequiredService<IConfiguration>();
+
+	// run migrations
+	await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync(dbContext.Database);
+
+	var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+	// ensure roles are created
+	var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+	foreach (var role in Estral.Host.Web.Infra.Authorization.Roles.AllRoles)
+	{
+		if (!await roleManager.RoleExistsAsync(role))
+		{
+			if (await roleManager.CreateAsync(new IdentityRole<int>(role)) is { Succeeded: false } err)
+			{
+				logger.LogError("Failed to create role {Role}: {Errors}", role, err.Errors.ToList());
+			}
+		}
+	}
+
+	// set default admin users
+	var adminUserDiscordIds = config["PreseedAdminUserDiscordIds"];
+	if (StringExtensions.NormalizeToNull(adminUserDiscordIds) is { } idss)
+	{
+		const string Role = Estral.Host.Web.Infra.Authorization.Roles.Admin;
+
+		var ids = idss.Split(",").Select(ulong.Parse).ToArray();
+		var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+
+		foreach (var id in ids)
+		{
+			var user = await dbContext.Users.FirstOrDefaultAsync(m => m.DiscordId == id);
+			if (user is null) continue;
+
+			if (await userManager.IsInRoleAsync(user, Role)) continue;
+
+			var result = await userManager.AddToRoleAsync(user, Role);
+			if (!result.Succeeded)
+			{
+				logger.LogError("Could not add user {User} to admin role: {Errors}", user, result.Errors.ToList());
+			}
+		}
+	}
 }
