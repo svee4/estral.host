@@ -31,10 +31,10 @@ else
             </p>
         </div>
         <div id="content-buttons">
-            <button type="button" class="button">Copy link</button>
+            <button type="button" class="button" id="content-button-copy">Copy link</button>
             @if (Model.IsOwner || User.IsInRole(Roles.Admin))
             {
-                <button type="submit" form="form" class="button">Delete</button>
+                <button type="button" class="button" id="content-button-delete">Delete</button>
             }
         </div>
     </header>
@@ -50,6 +50,22 @@ else
             @Html.AntiForgeryToken()
         </helper:form>
     </div>
+
+    <script type="module">
+        const button = document.getElementById("content-button-copy");
+        button.addEventListener("click", () => {
+            navigator.clipboard.writeText(window.location)
+                .catch(e => alert("Could not write text to clipboard, please copy manually"));
+        });
+    </script>
+
+    <script type="module">
+        const button = document.getElementById("content-button-delete");
+        button.addEventListener("click", () => {
+            if (!confirm("Do you want to permanently delete this content?")) return;
+            document.getElementById("form").submit();
+        });
+    </script>
 }
 
 <style>

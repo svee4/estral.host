@@ -2,6 +2,12 @@
 @model Estral.Host.Web.Features.Pages.Auth.Login.LoginModel
 
 <article id="page">
+    <p>
+        By logging in, you agree to the 
+        <a href="/boring/privacy" class="link">privacy policy</a> 
+        and 
+        <a href="/boring/terms" class="link">terms of service</a>
+    </p>
     <a href="@Model.Url" class="button">
         Log in with discord
     </a>
@@ -10,7 +16,9 @@
 <style>
     #page {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 1em;
     }
 
     #page a {

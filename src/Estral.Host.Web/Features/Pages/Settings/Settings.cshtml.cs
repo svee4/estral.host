@@ -43,11 +43,12 @@ public sealed class SettingsModel : PageModel
 		if (!ModelState.IsValid)
 		{
 			SettingsData = await GetSettingsData(dbContext, userId, token);
-			Debugger.Break();
 			return;
 		}
 
 		var user = await dbContext.Users.FirstAsync(m => m.Id == userId, token);
+
+		Dictionary<string, (string? Old, string? New)> changes = [];
 
 		if (postDto.Username != user.UserName)
 		{
@@ -58,12 +59,29 @@ public sealed class SettingsModel : PageModel
 				ModelState.AddModelError(nameof(PostDto.Username), "Username is already taken");
 				return;
 			}
+			changes.Add("Username", (user.UserName, postDto.Username));
+			user.UserName = postDto.Username;
 		}
 
 		if (postDto.ProfileDescription != user.ProfileDescription)
 		{
+			changes.Add("ProfileDescription", (user.ProfileDescription, postDto.ProfileDescription));
 			user.ProfileDescription = postDto.ProfileDescription;
 		}
+
+		if (changes.Count is 0)
+		{
+			return;
+		}
+
+		await auditLogService.Add(new()
+		{
+			Category = AuditLogService.Categories.SettingsUpdate,
+			UserId = user.Id,
+			Username = user.UserName,
+			RequestIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
+			Data = changes.ToDictionary(kvp => kvp.Key, kvp => (string?)$"{kvp.Value.Old} => {kvp.Value.New}")
+		}, CancellationToken.None);
 
 		await dbContext.SaveChangesAsync(token);
 		SettingsData = await GetSettingsData(dbContext, userId, token);

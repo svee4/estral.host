@@ -11,7 +11,7 @@ public sealed class FileValidationAttribute : ValidationAttribute
 	public FileTypes.Preset AllowedFileTypesPreset { get; set; }
 
 	private string? _fileSizeValidationFailureMessage;
-	public string FileSizeValidationFailureMessage { 
+	public string FileSizeValidationFailureMessage {
 		get => _fileSizeValidationFailureMessage ??= $"File size too large. Maximum size is {MaxInclusiveSizeInBytes} bytes";
 		set => _fileSizeValidationFailureMessage = value;
 	}
@@ -19,7 +19,8 @@ public sealed class FileValidationAttribute : ValidationAttribute
 	private string? _allowedFileTypesValidationFailureMessage;
 	public string AllowedFileTypesValidationFailureMessage
 	{
-		get => _allowedFileTypesValidationFailureMessage ??= $"Invalid file types. Allowed types are: {AllowedFileTypes?.StringJoin(", ")}";
+		get => _allowedFileTypesValidationFailureMessage ??=
+			$"Invalid file types. Allowed types are: {(AllowedFileTypes ?? FileTypes.GetFileTypesForPreset(AllowedFileTypesPreset)).StringJoin(", ")}";
 		set => _allowedFileTypesValidationFailureMessage = value;
 	}
 

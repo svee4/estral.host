@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/user.css" />
 }
 
-<article style="width: var(--default-page-width)">
+<article style="width: var(--default-page-width); display: flex; flex-direction: column; gap: 0.75em;">
     @if (Model.NotFound)
     {
         <h2>404: User not found</h2>
@@ -20,6 +20,11 @@
         <p>
             @Model.UserData.ProfileDescription
         </p>
-        <a href="/browse?userId=@(Model.UserData.Id)">Browse uploads</a>
+        @if (Model.IsCurrentUser)
+        {
+            <a href="/settings" class="link">Settings</a>
+        }
+
+        <a href="/browse?userId=@(Model.UserData.Id)" class="link">Browse uploads</a>
     }
 </article>

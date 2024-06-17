@@ -7,24 +7,6 @@ public sealed class AuditLogService(AppDbContext dbContext, ILogger<AuditLogServ
 	private readonly AppDbContext _dbContext = dbContext;
 	private readonly ILogger _logger = logger;
 
-	[Obsolete]
-	public async Task Add(
-		string category,
-		string message,
-		string? requestIp = null,
-		string? username = null,
-		int? userId = null,
-		string? traceId = null,
-		Dictionary<string, string>? data = null,
-		CancellationToken token = default
-		)
-	{
-		var ev = AuditEvent.Create(category, message, requestIp, username, userId, traceId, data);
-		_logger.LogInformation("Audit event: {AuditEvent}", ev);
-		await _dbContext.AuditEvents.AddAsync(ev, token);
-		await _dbContext.SaveChangesAsync(token);
-	}
-
 	public async Task Add(Entry entry, CancellationToken token = default)
 	{
 		var ev = AuditEvent.Create(
@@ -57,5 +39,6 @@ public sealed class AuditLogService(AppDbContext dbContext, ILogger<AuditLogServ
 		public const string Authorization = "Authorization";
 		public const string ContentDelete = "ContentDelete";
 		public const string ContentUpload = "ContentUpload";
+		public const string SettingsUpdate = "SettingsUpdate";
 	}
 }

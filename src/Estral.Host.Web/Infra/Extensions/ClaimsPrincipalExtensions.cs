@@ -25,6 +25,6 @@ public static class ClaimsPrincipalExtensions
 	/// </summary>
 	/// <param name="principal"></param>
 	/// <returns></returns>
-	public static string? GetUserName(this ClaimsPrincipal principal) =>
+	public static string? GetUsername(this ClaimsPrincipal principal) =>
 		principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
 }

@@ -30,7 +30,8 @@
             <label for="profilePicture">Profile picture</label>
             @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfilePicture))
             <input type="file" id="profilePicture" name="profilePicture" />
-            <img id="pfp-preview" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)" />
+            <img id="pfp-preview" src="@storageHelper.GetPfpUrl(User.GetUserId()!.Value)"
+                style="width: 52px; height: 52px"/>
 
             <script type="module">
                 const input = document.getElementById("profilePicture");
@@ -55,9 +56,8 @@
                 maxlength="@Estral.Host.Web.Database.User.ProfileDescriptionMaxLength" 
                 class="input"
                 id="profileDescription" 
-                name="profileDescription" 
-                value="@Model.SettingsData.ProfileDescription">
-            </textarea>
+                name="profileDescription"
+            >@Model.SettingsData.ProfileDescription</textarea>
         </div>
 
         <div>

@@ -7,24 +7,105 @@
     <p>@Model.ErrorMessage</p>
 }
 
-<form method="POST" enctype="multipart/form-data" action="/content/upload">
-    @Html.AntiForgeryToken()
-    <div>
-        <label for="file">File</label>
-        @Html.ValidationMessage(nameof(UploadModel.PostDto.File))
-        <input required type="file" id="file" name="file" />
+<article id="page">
+    <div id="left">
+        <p>Preview</p>
+        <div id="preview">
+            <img src="#" />
+        </div>
     </div>
-    <div>
-        <label for="title">Title</label>
-        @Html.ValidationMessage(nameof(UploadModel.PostDto.Title))
-        <input required type="text" id="title" name="title" maxlength="@UploadModel.TitleMaxLength" />
-    </div>
-    <div>
-        <label for="description">Description</label>
-        @Html.ValidationMessage(nameof(UploadModel.PostDto.Description))
-        <textarea id="description" name="description" maxlength="@UploadModel.DescriptionMaxLength"></textarea>
-    </div>
-    <div>
-        <button type="submit">Upload</button>
-    </div>
-</form>
+
+    <form id="right" method="POST" enctype="multipart/form-data" action="/content/upload">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label for="file">File</label>
+            @Html.ValidationMessage(nameof(UploadModel.PostDto.File))
+            <input required type="file" id="file" name="file" />
+        </div>
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            @Html.ValidationMessage(nameof(UploadModel.PostDto.Title))
+            <input required type="text" id="title" name="title" maxlength="@UploadModel.TitleMaxLength" />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            @Html.ValidationMessage(nameof(UploadModel.PostDto.Description))
+            <textarea id="description" name="description" maxlength="@UploadModel.DescriptionMaxLength"></textarea>
+        </div>
+
+        <div>
+            <button type="submit" class="button">Upload</button>
+        </div>
+
+        <style>
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.2em;
+            }
+        </style>
+    </form>
+</article>
+
+<script type="module">
+    const input = document.getElementById("file");
+    const preview = document.querySelector("#preview img");
+
+    input.addEventListener("change", () => {
+        const file = input.files[0];
+        preview.src = URL.createObjectURL(file);
+
+        // free memory ?
+        preview.addEventListener("load", () => URL.revokeObjectURL(preview.src), { once: true });
+    });
+</script>
+
+<style>
+    #page {
+        display: flex;
+        height: 100%;
+        gap: 1em;
+    }
+
+    #left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2em;
+        flex-grow: 1;
+    }
+
+    #preview {
+        position: relative;
+        flex-grow: 1;
+        display: grid;
+        place-items: center;
+        width: 100%;
+
+        & img {
+            width: calc(100% - 4px);
+            position: absolute;
+            object-fit: contain;
+            max-height: 100%;
+            border: 1px solid gray;
+        }
+    }
+
+    #right {
+        min-width: 35%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75em;
+        width: var(--default-page-width);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @@media screen and (width <= 1000px) {
+        #page {
+            flex-direction: column;
+        }
+    }
+</style>

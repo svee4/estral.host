@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Estral.Host.Web.Infra.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Amazon.S3.Model;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Estral.Host.Web.Infra;
@@ -12,7 +11,6 @@ using System.Diagnostics;
 using Estral.Host.Web.Infra.Validation;
 
 namespace Estral.Host.Web.Features.Pages.Content.Upload;
-
 
 [Authorize]
 [ValidateAntiForgeryToken]
@@ -25,9 +23,7 @@ public class UploadModel : PageModel
 
 	public string? ErrorMessage { get; private set; }
 
-	public void OnGet()
-	{
-	}
+	public void OnGet() { }
 
 	public async Task OnPost(
 		[FromForm] PostDto postDto,
@@ -66,6 +62,8 @@ public class UploadModel : PageModel
 		{
 			Category = AuditLogService.Categories.ContentUpload,
 			UserId = user.Id,
+			Username = user.UserName,
+			RequestIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
 			Data = new()
 			{
 				{ "title", title },
