@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/app.css" />
     <title>@ViewData[ViewDataKeys.Title]</title>
 
-    @if (ViewData["OpenGraph"] is OpenGraphModel og)
+    @if (ViewData[ViewDataKeys.OpenGraphModel] is OpenGraphModel og)
     {
         <meta property="og:title" content="@og.Title" />
         <meta property="og:image" content="@storageHelper.GetCdnUrl(og.Id)" />
