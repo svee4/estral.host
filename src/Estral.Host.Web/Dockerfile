@@ -1,7 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 as sdk
 
 WORKDIR /app
+
 COPY . .
+COPY --from=projectroot Directory.Build.props .
+
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
