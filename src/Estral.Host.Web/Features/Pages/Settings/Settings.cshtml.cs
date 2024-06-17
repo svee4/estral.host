@@ -39,10 +39,10 @@ public sealed class SettingsModel : PageModel
 		CancellationToken token)
 	{
 		var userId = User.GetUserId() ?? throw new UnreachableException("Authorized user has no id");
+		SettingsData = await GetSettingsData(dbContext, userId, token);
 
 		if (!ModelState.IsValid)
 		{
-			SettingsData = await GetSettingsData(dbContext, userId, token);
 			return;
 		}
 
@@ -67,6 +67,11 @@ public sealed class SettingsModel : PageModel
 		{
 			changes.Add("ProfileDescription", (user.ProfileDescription, postDto.ProfileDescription));
 			user.ProfileDescription = postDto.ProfileDescription;
+		}
+
+		if (postDto.ProfilePicture is not null)
+		{
+			changes.Add("ProfilePicture", ("a", "b"));
 		}
 
 		if (changes.Count is 0)

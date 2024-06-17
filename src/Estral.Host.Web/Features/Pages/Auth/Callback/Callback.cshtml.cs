@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Estral.Host.Web.Infra;
 
 namespace Estral.Host.Web.Features.Pages.Auth.Callback;
 
@@ -38,7 +39,7 @@ public class CallbackModel : PageModel
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] SignInManager<Database.User> signInManager,
 		[FromServices] Database.AppDbContext dbContext,
-		[FromServices] IAmazonS3 s3client,
+		[FromServices] IAmazonS3 s3Client,
 		[FromServices] ILogger<CallbackModel> logger,
 		CancellationToken token)
 	{
@@ -190,16 +191,10 @@ public class CallbackModel : PageModel
 
 			// generate profile picture for user
 			var thing = await httpClient.GetStreamAsync($"https://api.dicebear.com/9.x/identicon/jpg?seed={user.Id}", token);
-			var request = new PutObjectRequest()
-			{
-				BucketName = config.GetRequiredValue("S3:BucketName"),
-				Key = $"pfp/{user.Id}",
-				ContentType = "image/jpg",
-				InputStream = thing,
-				DisablePayloadSigning = true
-			};
+			var ms = new MemoryStream();
+			await thing.CopyToAsync(ms, token);
 
-			var result = await s3client.PutObjectAsync(request, token);
+			var result = await AmazonS3Extensions.UploadObject(s3Client, config.GetRequiredValue("S3:BucketName"), $"pfp/{user.Id}", "image/jpg", ms, token);
 			if ((int)result.HttpStatusCode >= 400)
 			{
 				logger.LogError("Failed to get default avatar for {UserId}, request failed with status code{StatusCode} and metadata {Metadata}",

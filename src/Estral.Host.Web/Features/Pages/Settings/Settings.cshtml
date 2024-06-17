@@ -9,13 +9,11 @@
     {
         <p>@Model.ErrorMessage</p>
     }
-    <helper:form method="POST" enctype=multipart/form-data>
+    <helper:form method="POST" enctype="multipart/form-data" id="form">
         @Html.AntiForgeryToken()        
-        <div>
+        <div class="form-group">
             <label for="username">Username</label>
-            <p>
-                @Html.ValidationMessage(nameof(SettingsModel.PostDto.Username))
-            </p>
+            @Html.ValidationMessage(nameof(SettingsModel.PostDto.Username))
             <input 
                 type="text"
                 required 
@@ -26,7 +24,7 @@
                 value="@Model.SettingsData.Username" />
         </div>
 
-        <div>
+        <div class="form-group" style="flex-direction: row; align-items: center;">
             <label for="profilePicture">Profile picture</label>
             @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfilePicture))
             <input type="file" id="profilePicture" name="profilePicture" />
@@ -47,16 +45,15 @@
             </script>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="profileDescription">Profile description</label>
-            <p>
-                @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfileDescription))
-            </p>
+            @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfileDescription))
             <textarea
                 maxlength="@Estral.Host.Web.Database.User.ProfileDescriptionMaxLength" 
                 class="input"
                 id="profileDescription" 
                 name="profileDescription"
+                style="resize: vertical;"
             >@Model.SettingsData.ProfileDescription</textarea>
         </div>
 
@@ -67,4 +64,21 @@
         </div>
 
     </helper:form>
+
+    <style>
+        #form {
+            width: var(--default-page-width);
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75em;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2em;
+        }
+    </style>
 </article>
