@@ -14,7 +14,9 @@ public class BrowseModel : PageModel
 		[FromServices] Database.AppDbContext dbContext
 	)
 	{
-		IQueryable<Database.Content> query = dbContext.Contents.Include(m => m.Owner);
+		IQueryable<Database.Content> query = dbContext.Contents
+			.Include(m => m.Owner)
+			.OrderByDescending(m => m.Created);
 
 		if (q.UserId is { } userId)
 		{
@@ -33,7 +35,7 @@ public class BrowseModel : PageModel
 	}
 
 
-	public class Query
+	public sealed class Query
 	{
 		public int? UserId { get; set; }
 	}
