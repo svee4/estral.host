@@ -39,7 +39,7 @@ public class CallbackModel : PageModel
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] SignInManager<Database.User> signInManager,
 		[FromServices] Database.AppDbContext dbContext,
-		[FromServices] IAmazonS3 s3Client,
+		[FromServices] R2Client r2Client,
 		[FromServices] ILogger<CallbackModel> logger,
 		CancellationToken token)
 	{
@@ -194,7 +194,7 @@ public class CallbackModel : PageModel
 			var ms = new MemoryStream();
 			await thing.CopyToAsync(ms, token);
 
-			var result = await AmazonS3Extensions.UploadObject(s3Client, config.GetRequiredValue("S3:BucketName"), $"pfp/{user.Id}", "image/jpg", ms, token);
+			var result = await r2Client.UploadObject($"pfp/{user.Id}", "image/jpg", ms, token);
 			if ((int)result.HttpStatusCode >= 400)
 			{
 				logger.LogError("Failed to get default avatar for {UserId}, request failed with status code{StatusCode} and metadata {Metadata}",

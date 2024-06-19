@@ -33,7 +33,7 @@ public sealed class SettingsModel : PageModel
 		[FromForm] PostDto postDto,
 		[FromServices] AppDbContext dbContext,
 		[FromServices] AuditLogService auditLogService,
-		[FromServices] IAmazonS3 s3Client,
+		[FromServices] R2Client r2Client,
 		[FromServices] IConfiguration config,
 		[FromServices] ILogger<SettingsModel> logger,
 		CancellationToken token)
@@ -99,10 +99,10 @@ public sealed class SettingsModel : PageModel
 			var ms = new MemoryStream();
 			await pfp.CopyToAsync(ms, token);
 
-			var result = await AmazonS3Extensions.UploadObject(
-				s3Client: s3Client,
-				bucketName: config.GetRequiredValue("S3:BucketName"),
-				key: $"pfp/{userId}",
+			var key = $"pfp/{userId}";
+
+			var result = await r2Client.UploadObject(
+				key: key,
 				contentType: pfp.ContentType,
 				inputStream: ms,
 				token: token
@@ -117,6 +117,9 @@ public sealed class SettingsModel : PageModel
 					result.ResponseMetadata);
 				return;
 			}
+
+			// clear cache
+			await r2Client.InvalidateCache(key, token);
 		}
 
 

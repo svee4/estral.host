@@ -67,7 +67,7 @@ public class ContentModel : PageModel
 		[FromRoute] int id,
 		[FromServices] UserManager<Database.User> userManager,
 		[FromServices] Database.AppDbContext dbContext,
-		[FromServices] IAmazonS3 s3Client,
+		[FromServices] R2Client r2Client,
 		[FromServices] AuditLogService auditLogService,
 		[FromServices] IConfiguration config,
 		[FromServices] ILogger<ContentModel> logger,
@@ -134,16 +134,10 @@ public class ContentModel : PageModel
 		dbContext.Contents.Remove(content);
 		await dbContext.SaveChangesAsync(token);
 
-		var request = new DeleteObjectRequest
-		{
-			BucketName = config.GetRequiredValue("S3:BucketName"),
-			Key = id.ToString(CultureInfo.InvariantCulture)
-		};
+		var key = id.ToString(CultureInfo.InvariantCulture);
 
-		var result = await AmazonS3Extensions.DeleteObject(
-			s3Client,
-			config.GetRequiredValue("S3:BucketName"),
-			id.ToString(CultureInfo.InvariantCulture),
+		var result = await r2Client.DeleteObject(
+			key,
 			CancellationToken.None);
 
 		if ((int)result.HttpStatusCode >= 400)
@@ -155,6 +149,9 @@ public class ContentModel : PageModel
 				result.ResponseMetadata);
 			return Page();
 		}
+
+		// clear cache
+		await r2Client.InvalidateCache(key, token);
 
 		NotFound = true;
 		return Page();

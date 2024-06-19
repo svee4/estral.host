@@ -29,7 +29,7 @@ public class UploadModel : PageModel
 		[FromForm] PostDto postDto,
 		[FromServices] Database.AppDbContext dbContext,
 		[FromServices] UserManager<Database.User> userManager,
-		[FromServices] Amazon.S3.IAmazonS3 s3Client,
+		[FromServices] R2Client r2Client,
 		[FromServices] AuditLogService auditLogService,
 		[FromServices] IConfiguration config,
 		[FromServices] ILogger<UploadModel> logger,
@@ -78,9 +78,7 @@ public class UploadModel : PageModel
 		var ms = new MemoryStream();
 		await postDto.File.CopyToAsync(ms, token);
 
-		var result = await AmazonS3Extensions.UploadObject(
-			s3Client: s3Client,
-			bucketName: config.GetRequiredValue("S3:BucketName"),
+		var result = await r2Client.UploadObject(
 			key: content.Id.ToString(CultureInfo.InvariantCulture),
 			contentType: postDto.File.ContentType,
 			inputStream: ms,

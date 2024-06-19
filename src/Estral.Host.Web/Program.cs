@@ -45,7 +45,7 @@ var s3Config = new AmazonS3Config
 };
 
 builder.Services.AddScoped<IAmazonS3>(_ => new AmazonS3Client(s3Credentials, s3Config));
-
+builder.Services.AddScoped<R2Client>();
 
 builder.Services.AddHttpClient();
 

@@ -32,7 +32,7 @@
             @Html.ValidationMessage(nameof(SettingsModel.PostDto.ProfilePicture))
             <input type="file" id="profilePicture" name="profilePicture" />
             <img id="pfp-preview" src="@storageHelper.GetCdnPfpUrl(User.GetUserId()!.Value)"
-                style="width: 52px; height: 52px"/>
+                style="width: 52px; height: 52px" />
 
             <script type="module">
                 const input = document.getElementById("profilePicture");
