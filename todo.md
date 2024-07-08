@@ -3,7 +3,6 @@
   - [ ] Pagination
 
 - [ ] user page
-  - [-] Display profile picture
   - [ ] Embed settings
 
 - [ ] content/upload page
