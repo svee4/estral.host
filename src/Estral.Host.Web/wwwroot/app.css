@@ -96,8 +96,12 @@ a {
 .input {
 	padding: 4px;
 	color: black;
-	background-color: var(--platinum);
+	background-color: var(--platinum-lighter);
 	border: 1px solid var(--black-lightest);
+}
+
+.field-validation-error {
+	color: var(--orange);
 }
 
 /* 
