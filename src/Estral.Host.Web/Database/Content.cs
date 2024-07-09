@@ -7,15 +7,17 @@ namespace Estral.Host.Web.Database;
 public sealed class Content
 {
 	public const int TitleMaxLength = 50;
-	public const int DescriptionMaxLength = 50;
+	public const int DescriptionMaxLength = 250;
 
 	public int Id { get; private set; }
-	public string Title { get; set; }
+	public string Title { get; set; } = null!;
 	public string? Description { get; set; }
-	public DateTimeOffset Created { get; set; }
+	public DateTimeOffset Created { get; private set; }
 
 	public int OwnerId { get; private set; }
-	public User Owner { get; set; }
+	public User Owner { get; set; } = null!;
+
+	public IList<Tag> Tags { get; private set; } = null!;
 
 	private Content() { }
 
@@ -30,7 +32,8 @@ public sealed class Content
 			Description = description,
 			Created = DateTimeOffset.UtcNow,
 			OwnerId = owner.Id,
-			Owner = owner
+			Owner = owner,
+			Tags = []
 		};
 	}
 

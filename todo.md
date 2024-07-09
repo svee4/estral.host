@@ -3,7 +3,7 @@
   - [ ] Pagination
 
 - [ ] user page
-  - [ ] Embed settings
+  - [ ] Embed settings?
 
 - [ ] content/upload page
   - [ ] Default image for preview instead of empty

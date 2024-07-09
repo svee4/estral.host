@@ -60,11 +60,14 @@ a {
 
 
 .link {
-	color: var(--platinum-pink);
+	--color: var(--platinum-pink);
+	--color-hover: var(--pink);
+
+	color: var(--color);
 	transition: color 0.1s linear;
 
 	&:is(:hover, :focus-visible) {
-		color: var(--pink);
+		color: var(--color-hover);
 	}
 }
 
@@ -79,10 +82,16 @@ a {
 	background-color: var(--bg);
 	transition: background-color 0.1s linear;
 
-	&:is(:hover, :focus-visible) {
+	&:is(:hover, :focus-visible):not(:disabled) {
 		background-color: var(--bg-hover);
 	}
+
+	&:disabled {
+		background-color: #9D9D9D;
+		cursor: default;
+	}
 }
+
 
 .input {
 	padding: 4px;

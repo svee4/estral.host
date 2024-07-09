@@ -8,6 +8,7 @@ public sealed class AppDbContext(DbContextOptions options) : IdentityDbContext<U
 {
 	public DbSet<Content> Contents {  get; private set; }
 	public DbSet<AuditEvent> AuditEvents { get; private set; }
+	public DbSet<Tag> Tags { get; private set; }
 
 	protected override void OnModelCreating(ModelBuilder builder) 
 	{

@@ -14,9 +14,9 @@ public sealed class User : IdentityUser<int>
 
 	public string? ProfileDescription { get; set; }
 
-	public DateTimeOffset Created {  get; private set; }
+	public DateTimeOffset Created { get; private set; }
 
-	// make non-nullable because its required
+	// hide to make non-nullable
 	public new string UserName
 	{
 		get => base.UserName!;

@@ -54,6 +54,8 @@ builder.Services.AddRazorPages(options =>
 	options.RootDirectory = "/Features";
 });
 
+builder.Services.AddControllers();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
 	options.Cookie.HttpOnly = true;
@@ -101,6 +103,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 
 await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())

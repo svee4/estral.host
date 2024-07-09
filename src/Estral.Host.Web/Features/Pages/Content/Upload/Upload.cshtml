@@ -38,6 +38,140 @@
             <textarea id="description" name="description" maxlength="@UploadModel.DescriptionMaxLength"></textarea>
         </div>
 
+        <div class="form-group">
+            <label>Tags</label>
+            @Html.ValidationMessage(nameof(UploadModel.PostDto.Tags))
+
+            <input type="text" id="tag-search" maxlength="@Estral.Host.Web.Database.Tag.NameMaxLength" />
+
+            <div>
+                <button type="button" class="button" id="tag-search-button">Search tags</button>
+                <button type="button" class="button" id="tag-add-button">Add tag</button>
+            </div>
+
+            <div id="tag-search-results"></div>
+
+            <div id="tags"></div>
+
+            <script type="module">
+                const searchInput = document.querySelector("#tag-search");
+                const searchButton = document.querySelector("#tag-search-button");
+                const addButton = document.querySelector("#tag-add-button");
+                const resultsContainer = document.querySelector("#tag-search-results");
+                const tagsContainer = document.querySelector("#tags");
+
+                searchButton.addEventListener("click", async () => {
+
+                    resultsContainer.innerHTML = "";
+
+                    const text = searchInput.value;
+                    const response = await fetch("/api/tags/search?q=" + encodeURIComponent(text), {
+                        headers: {
+                            "accept": "application/json"
+                        }
+                    });
+
+                    console.log(response);
+                    const json = await response.json();
+                    console.log(json);
+
+                    // json is [ { id: int, name: string } ]
+
+                    for (let i = 0; i < json.length; i++) {
+                        const tag = json[i];
+
+                        if (tagIsAdded(tag.name)) {
+                            continue;
+                        }
+
+                        const container = document.createElement("div");
+                        container.dataset.id = tag.id;
+
+                        const pname = container.appendChild(document.createElement("p"));
+                        pname.innerText = tag.name;
+
+                        const button = container.appendChild(document.createElement("button"));
+                        button.innerText = "Add tag";
+                        button.addEventListener("click", () => {
+                            addTag(tag.name);
+                            container.remove();
+                        });
+
+                        resultsContainer.appendChild(container);
+                    }
+                });
+
+                addButton.addEventListener("click", () => {
+                    const name = searchInput.value;
+                    if (!tagIsAdded(name)) {
+                        addTag(name);
+                    }
+                });
+
+                function addTag(name) {
+                    const container = document.createElement("div");
+
+                    const input = container.appendChild(document.createElement("input"));
+                    input.name = "tags";
+                    input.value = name;
+                    input.type = "hidden";
+
+                    const pname = container.appendChild(document.createElement("p"));
+                    pname.innerText = name;
+
+                    const button = container.appendChild(document.createElement("button"));
+                    button.type = "button";
+                    button.innerText = "Remove";
+                    button.classList.add("button");
+                    button.addEventListener("click", () => {
+                        container.remove();
+                    });
+
+                    tagsContainer.appendChild(container);
+                }
+
+                function tagIsAdded(name) {
+                    const tags = Array.from(tagsContainer.children);
+                    for (let i = 0; i < tags.length; i++) {
+                        if (tags[i].querySelector("input").value == name) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+            </script>
+
+            <style>
+                #tag-search-results {
+                    display: flex;
+                    gap: 0.25em;
+                    flex-wrap: wrap;
+                }
+
+                #tags {
+                    display: flex;
+                    gap: 1em;
+                    flex-wrap: wrap;
+                }
+
+                #tags > div {
+                    display: flex;
+                    gap: 0.5em;
+                    align-items: center;
+                    padding: 4px;
+                    background: var(--magenta);
+                    color: black;
+                    border-radius: 4px;
+                }
+
+                #tags button {
+                    padding: 3px;
+                }
+            </style>
+        </div>
+
         <div>
             <button type="submit" class="button">Upload</button>
         </div>

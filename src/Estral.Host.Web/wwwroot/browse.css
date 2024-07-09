@@ -1,8 +1,8 @@
 
 #content-article {
 	display: flex;
-	align-items: center;
-/*	width: var(--default-page-width);*/
+	flex-direction: column;
+	gap: 0.5em;
 }
 
 #content-container {

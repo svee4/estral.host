@@ -72,6 +72,34 @@ public class UploadModel : PageModel
 		}, CancellationToken.None);
 
 		var content = Database.Content.Create(title, description, user);
+
+		if (postDto.Tags is { Count: > 0 })
+		{
+			var existingTags = await dbContext.Tags.Where(m => postDto.Tags.Contains(m.Name)).ToListAsync(token);
+
+			var anyNew = false;
+			foreach (var tag in postDto.Tags)
+			{
+				if (!existingTags.Any(m => m.Name == tag))
+				{
+					anyNew = true;
+					var newTag = Database.Tag.Create(tag);
+					dbContext.Tags.Add(newTag);
+					existingTags.Add(newTag);
+				}
+			}
+
+			if (anyNew)
+			{
+				await dbContext.SaveChangesAsync(token);
+			}
+
+			foreach (var tag in existingTags)
+			{
+				content.Tags.Add(tag);
+			}
+		}
+
 		await dbContext.Contents.AddAsync(content, token);
 		await dbContext.SaveChangesAsync(token);
 
@@ -99,7 +127,7 @@ public class UploadModel : PageModel
 		Response.Redirect($"/content/{content.Id}");
 	}
 
-	public sealed class PostDto
+	public sealed class PostDto : IValidatableObject
 	{
 
 		[Required]
@@ -111,5 +139,23 @@ public class UploadModel : PageModel
 
 		[MaxLength(DescriptionMaxLength)]
 		public string? Description { get; set; }
+
+		[MaxLength(10)]
+		public IReadOnlyList<string>? Tags { get; set; }
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (Tags is { Count: > 0 })
+			{
+				foreach (var tag in Tags)
+				{
+					if (tag.Length > Database.Tag.NameMaxLength)
+					{
+						yield return new ValidationResult($"Tag name maximum length is {Database.Tag.NameMaxLength}", [nameof(Tags)]);
+						break;
+					}
+				}
+			}
+		}
 	}
 }

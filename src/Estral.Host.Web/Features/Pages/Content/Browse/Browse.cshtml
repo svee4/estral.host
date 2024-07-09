@@ -1,4 +1,5 @@
 @page "/Content/Browse"
+@using Estral.Host.Web.Infra.Extensions
 @model Estral.Host.Web.Features.Pages.Content.Browse.BrowseModel
 @inject Estral.Host.Web.Infra.StorageHelper storageHelper
 @{
@@ -10,8 +11,47 @@
 }
 
 <article id="content-article">
+
+    <header>
+        <h1>
+            @* TODO this could be made prettier *@
+            @if (Model.QueryInfo.Username is not null || Model.QueryInfo.Tags is { Count: > 0 })
+            {
+                <text>Showing content </text>
+
+                @if (Model.QueryInfo.Username is { } username && Model.QueryInfo.UserId is { } userId)
+                {
+                    <text>by user: <a class="link" href="/user/@userId">@username</a> </text>
+                }
+
+                @if (Model.QueryInfo.Tags is { Count: > 0 } tags)
+                {
+                    <text>with tags: </text>
+
+                    // lazy
+                    var count = tags.Count - 1;
+                    int i;
+
+                    for (i = 0; i < count; i++)
+                    {
+                        var tag = tags[i];
+                        <a class="link" href="/content/browse?tags=@Uri.EscapeDataString(tag)">@tag,</a>
+                    }
+
+                    <a class="link" href="/content/browse?tags=@Uri.EscapeDataString(tags[i])">@tags[i]</a>
+                }
+            }
+            else
+            {
+                <text>Showing all content</text>
+            }
+        </h1>
+
+    </header>
+
+
     <div id="content-container">
-        @foreach(var content in Model.Contents)
+        @foreach (var content in Model.Contents)
         {
             <div class="content-item">
                 <a href="/content/@content.Id">@content.Title</a>

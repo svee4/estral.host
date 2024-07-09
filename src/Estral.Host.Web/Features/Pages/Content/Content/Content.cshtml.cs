@@ -1,10 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Amazon.S3;
-using Amazon.S3.Model;
 using Estral.Host.Web.Infra;
 using Estral.Host.Web.Infra.Authorization;
-using Estral.Host.Web.Infra.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -32,6 +29,7 @@ public class ContentModel : PageModel
 	{
 		var content = await dbContext.Contents
 			.Include(m => m.Owner)
+			.Include(m => m.Tags)
 			.Where(m => m.Id == id)
 			.FirstOrDefaultAsync(token);
 
@@ -50,7 +48,8 @@ public class ContentModel : PageModel
 			Title = content.Title,
 			Description = content.Description,
 			OwnerId = content.Owner.Id,
-			OwnerName = content.Owner.UserName
+			OwnerName = content.Owner.UserName,
+			Tags = content.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList()
 		};
 
 		var og = new OpenGraphModel()
@@ -164,5 +163,12 @@ public class ContentModel : PageModel
 		public required string? Description { get; set; }
 		public required int OwnerId { get; set; }
 		public required string OwnerName { get; set; }
+		public required IReadOnlyList<TagDto> Tags { get; set; }
+	}
+
+	public sealed class TagDto
+	{
+		public required int Id { get; set; }
+		public required string Name { get; set; }
 	}
 }
